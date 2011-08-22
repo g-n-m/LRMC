@@ -1,5 +1,6 @@
 // MMT is calculating C = A*A',
 // where A is a width x height type matrix
+// TODO: localisation
 
 __kernel 
 void MMT(__global float* a, 
@@ -24,76 +25,38 @@ void MMT(__global float* a,
 //     c[i*height+j]=a[j*width+i];
 }
 
-/* Old Pnorm2 naive kernel */
-/*
+// PNorm2 is calculating c = ||a||^2,
+// where a is a vector
+// NOTE: size-padding needed!
 __kernel 
 void PNorm2(__global float* a, 
 	    __global float* c,
 	    __local  float* sdata
 	   )
 {
-    uint gi = get_global_id(0);
+//     __private uint gi = get_global_id(0);
     uint li = get_local_id(0);
     uint bi = get_group_id(0);
-    uint ls = get_local_size(0);
+    __private uint ls = get_local_size(0);
     uint j  = bi*ls*2+li;
 
     sdata[li]=a[j]*a[j]+a[j+ls]*a[j+ls];
-//     c[gi]=bi;
-//     c[gi]=bi*ls*2+li;
-    c[gi]=0;
-//     barrier(CLK_LOCAL_MEM_FENCE);
-    for(unsigned int i=ls>>1;i>0;i>>=1) {
-      barrier(CLK_LOCAL_MEM_FENCE);
-      if(li<i) {
-	sdata[li]+=sdata[li+i];
-      }
-// 	sdata[li]+=sdata[(li+i)%ls];
-//       barrier(CLK_LOCAL_MEM_FENCE);
-    }
-//     barrier(CLK_GLOBAL_MEM_FENCE);
-    if(li==0){
-      c[bi]+=sdata[li];
-    }
-}
-// */
+    barrier(CLK_LOCAL_MEM_FENCE);
 
-// PNorm2 is calculating c = ||a||^2,
-// where a is a vector
-// TODO: size-padding!
-// -> difference between cpu and gpu results??
-__kernel 
-void PNorm2(__global float* a, 
-	    __global float* c,
-	    __local  float* sdata
-	   )
-{
-    __private uint gi = get_global_id(0);
-//     uint li = get_local_id(0);
-//     uint bi = get_group_id(0);
-    __private uint ls = get_local_size(0);
-//     uint j  = bi*ls*2+li;
+    if (ls >= 512) {if (li < 256) { sdata[li] += sdata[li + 256];} barrier(CLK_LOCAL_MEM_FENCE); }
+    if (ls >= 256) {if (li < 128) { sdata[li] += sdata[li + 128];} barrier(CLK_LOCAL_MEM_FENCE); }
+    if (ls >= 128) {if (li <  64) { sdata[li] += sdata[li +  64];} barrier(CLK_LOCAL_MEM_FENCE); }
 
-    c[gi]=a[gi]+1;
-    c[gi+ls]=a[gi+ls]+1;
-//     sdata[li]=0;
-//     sdata[li]=a[j]*a[j]+a[j+ls]*a[j+ls];
-//     barrier(CLK_LOCAL_MEM_FENCE);
-// 
-//     if (ls >= 512) {if (li < 256) { sdata[li] += sdata[li + 256];} barrier(CLK_LOCAL_MEM_FENCE); }
-//     if (ls >= 256) {if (li < 128) { sdata[li] += sdata[li + 128];} barrier(CLK_LOCAL_MEM_FENCE); }
-//     if (ls >= 128) {if (li <  64) { sdata[li] += sdata[li +  64];} barrier(CLK_LOCAL_MEM_FENCE); }
-// 
-//     if (li < 32) {
-//       if (ls >= 64) { sdata[li] += sdata[li +  32]; barrier(CLK_LOCAL_MEM_FENCE); }
-//       if (ls >= 32) { sdata[li] += sdata[li +  16]; barrier(CLK_LOCAL_MEM_FENCE); }
-//       if (ls >= 16) { sdata[li] += sdata[li +   8]; barrier(CLK_LOCAL_MEM_FENCE); }
-//       if (ls >=  8) { sdata[li] += sdata[li +   4]; barrier(CLK_LOCAL_MEM_FENCE); }
-//       if (ls >=  4) { sdata[li] += sdata[li +   2]; barrier(CLK_LOCAL_MEM_FENCE); }
-//       if (ls >=  2) { sdata[li] += sdata[li +   1]; barrier(CLK_LOCAL_MEM_FENCE); }
-//     }
-// 
-//     if ( li==0 ) c[0] = sqrt(sdata[0]);
+    if (li < 32) {
+      if (ls >= 64) { sdata[li] += sdata[li +  32]; barrier(CLK_LOCAL_MEM_FENCE); }
+      if (ls >= 32) { sdata[li] += sdata[li +  16]; barrier(CLK_LOCAL_MEM_FENCE); }
+      if (ls >= 16) { sdata[li] += sdata[li +   8]; barrier(CLK_LOCAL_MEM_FENCE); }
+      if (ls >=  8) { sdata[li] += sdata[li +   4]; barrier(CLK_LOCAL_MEM_FENCE); }
+      if (ls >=  4) { sdata[li] += sdata[li +   2]; barrier(CLK_LOCAL_MEM_FENCE); }
+      if (ls >=  2) { sdata[li] += sdata[li +   1]; barrier(CLK_LOCAL_MEM_FENCE); }
+    }
+
+    if ( li==0 ) c[0] = sqrt(sdata[0]);
 }
 
 // PNorm2 is calculating c = (a+ei*sigma) / ||a+ei*sigma||,
