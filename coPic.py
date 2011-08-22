@@ -16,8 +16,8 @@ def toGrayscale(pd, a):
   return a
 
 def coPic(pd, debug, c):
-  """
-  Insert PNGImage array into an Image
+  """vtkImageData
+  Insert PNGImage array into a vtkImageData
   """
   a=vtkUnsignedCharArray();
   
