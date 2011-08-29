@@ -29,13 +29,13 @@ class CL:
     """
     
     #--- MMT Kernel
-    #"""
+    """
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(49), dtype=numpy.float32)
     
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
-    #"""
+    """
     
     #--- PNorm2 Kernel
     """
@@ -45,6 +45,15 @@ class CL:
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes/len(self.a))
     """
+    
+    #--- PNorm2v2 Kernel
+    #"""
+    #initialize client side (CPU) arrays
+    self.a = numpy.array(range(512), dtype=numpy.float32)
+    
+    #create OpenCL buffers
+    self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
+    #"""
     
     self.a_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.a)
     
@@ -57,16 +66,22 @@ class CL:
     """
     
     #--- MMT Kernel
-    #"""
+    """
     self.program.MMT(self.queue, (7, 7), None, self.a_buf, self.dest_buf, numpy.uint32(7), numpy.uint32(7))
     c = numpy.empty_like(self.a)
-    #"""
+    """
     
     #--- PNorm2 Kernel    
     """
     self.program.PNorm2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/4+255*32+4))
     c=numpy.empty(1, dtype=numpy.float32)
     """
+    
+    #--- PNorm2v2 Kernel    
+    #"""
+    self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/4),cl.LocalMemory(32))
+    c = numpy.empty_like(self.a)
+    #"""
     
     #ti=time()
       #cl.enqueue_read_buffer(self.queue, self.dest_buf, c).wait()
