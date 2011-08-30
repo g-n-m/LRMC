@@ -31,7 +31,8 @@ void MMT(__global float* a,
 	 __global float* c,
 	 const unsigned int width,
 	 const unsigned int height,
-	 __local  float* sdata
+	 __local  float* sdata,
+	 __local  float* sdatb
 	)
 {
     uint li = get_local_id(0);
@@ -40,15 +41,21 @@ void MMT(__global float* a,
     __private uint lsi = get_local_size(0);
     __private uint lsj = get_local_size(1);
 
-    uint col = get_group_id(0)*lsi + li;
-    uint row = get_group_id(1)*lsj + lj;
+    uint col = get_group_id(0) * lsi + li;
+    uint row = get_group_id(1) * lsj + lj;
 
     float sum = 0;
 
-    for(int k=0; k<width; k++){
-	float element1 = a[row*width+k];
-	float element2 = a[col*width+k];
-	sum += element1*element2;
+    for(int m=0; m<width/lsi; m++){
+	sdata[lj*lsi+li] = a[row * width + (m * lsi + li)];
+// 	sdatb[lj*lsi+li] = a[(m * lsj + lj) * width + col]; //without transpose it's just a normal mult.
+	sdatb[lj*lsi+li] = a[col * width + (m * lsj + lj)]; //copy of transposed elements
+	barrier(CLK_LOCAL_MEM_FENCE);
+	
+	for(int k=0; k<lsi; k++){
+	    sum += sdatb[k * lsi + li] * sdata[lj * lsi + k];
+// 	    barrier(CLK_LOCAL_MEM_FENCE); //needed ??
+	}
     }
     c[row*width+col]=sum;
 }

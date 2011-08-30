@@ -58,7 +58,7 @@ class CL:
     self.a_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.a)
     
     #print "max empirical loc. mem on GTX 280:", 1024*32/4+255*32+4
-    print self.a.nbytes/len(self.a)
+    #print self.a.nbytes/len(self.a)
 
   def execute(self, width, height):
     #--- Original
@@ -69,7 +69,7 @@ class CL:
     #--- MMT Kernel
     #"""
     self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
-    self.program.MMT(self.queue, (8, 8), (4,4), self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4))
+    self.program.MMT(self.queue, (8, 8), (4,4), self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.a)*32/4))
     c = numpy.empty_like(self.a)
     #"""
     
