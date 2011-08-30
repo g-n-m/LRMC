@@ -31,7 +31,7 @@ class CL:
     #--- MMT Kernel
     #"""
     #initialize client side (CPU) arrays
-    self.a = numpy.array(range(49), dtype=numpy.float32)
+    self.a = numpy.array(range(64), dtype=numpy.float32)
     
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
@@ -68,7 +68,7 @@ class CL:
     
     #--- MMT Kernel
     #"""
-    self.program.MMT(self.queue, (7, 7), None, self.a_buf, self.dest_buf, numpy.uint32(7), numpy.uint32(7))
+    self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
     c = numpy.empty_like(self.a)
     #"""
     

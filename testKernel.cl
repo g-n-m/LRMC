@@ -2,29 +2,30 @@
 // where A is a width x height type matrix
 // TODO: localisation
 
-__kernel 
-void MMTold(__global float* a, 
-	 __global float* c,
-	 const unsigned int width,
-	 const unsigned int height
-	)
-{
-    uint i = get_global_id(0);
-    uint j = get_global_id(1);
+// __kernel 
+// void MMTold(__global float* a, 
+// 	 __global float* c,
+// 	 const unsigned int width,
+// 	 const unsigned int height
+// 	)
+// {
+//     uint i = get_global_id(0);
+//     uint j = get_global_id(1);
+// 
+//     float sum = 0;
+// 
+//     for(int k=0; k<width; k++){
+// 
+//       sum+=a[j*width+k]*a[i*width+k];
+//     }
+// 
+//     c[j*width+i]=sum;
+// 
+// //     CODE for M.Transpose
+// //     c[i*height+j]=a[j*width+i];
+// }
 
-    float sum = 0;
-
-    for(int k=0; k<width; k++){
-
-      sum+=a[j*width+k]*a[i*width+k];
-    }
-
-    c[j*width+i]=sum;
-
-//     CODE for M.Transpose
-//     c[i*height+j]=a[j*width+i];
-}
-
+// Blocked version of MMT
 __kernel 
 void MMT(__global float* a, 
 	 __global float* c,
@@ -32,20 +33,23 @@ void MMT(__global float* a,
 	 const unsigned int height
 	)
 {
-    uint i = get_global_id(0);
-    uint j = get_global_id(1);
+    uint li = get_local_id(0);
+    uint lj = get_local_id(1);
+
+    __private uint lsi = get_local_size(0);
+    __private uint lsj = get_local_size(1);
+
+    uint col = get_group_id(0)*lsi + li;
+    uint row = get_group_id(1)*lsj + lj;
 
     float sum = 0;
 
     for(int k=0; k<width; k++){
-
-      sum+=a[j*width+k]*a[i*width+k];
+	float element1 = a[row*width+k];
+	float element2 = a[col*width+k];
+	sum += element1*element2;
     }
-
-    c[j*width+i]=sum;
-
-//     CODE for M.Transpose
-//     c[i*height+j]=a[j*width+i];
+    c[row*width+col]=sum;
 }
 
 // PNorm2 is calculating c = ||a||^2,
