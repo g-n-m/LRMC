@@ -30,7 +30,8 @@ __kernel
 void MMT(__global float* a, 
 	 __global float* c,
 	 const unsigned int width,
-	 const unsigned int height
+	 const unsigned int height,
+	 __local  float* sdata
 	)
 {
     uint li = get_local_id(0);

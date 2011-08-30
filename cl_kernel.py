@@ -69,6 +69,7 @@ class CL:
     #--- MMT Kernel
     #"""
     self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
+    self.program.MMT(self.queue, (8, 8), (4,4), self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4))
     c = numpy.empty_like(self.a)
     #"""
     
