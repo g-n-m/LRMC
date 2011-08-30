@@ -29,7 +29,7 @@ class CL:
     #"""
     
     #--- MMT Kernel
-    """
+    #"""
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(49), dtype=numpy.float32)
     
@@ -47,7 +47,7 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel
-    #"""
+    """
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(512), dtype=numpy.float32)
     
@@ -67,7 +67,7 @@ class CL:
     #"""
     
     #--- MMT Kernel
-    """
+    #"""
     self.program.MMT(self.queue, (7, 7), None, self.a_buf, self.dest_buf, numpy.uint32(7), numpy.uint32(7))
     c = numpy.empty_like(self.a)
     #"""
@@ -79,7 +79,7 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel    
-    #"""
+    """
     self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/4),cl.LocalMemory(32))
     c = numpy.empty_like(self.a)
     #"""

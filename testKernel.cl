@@ -3,6 +3,29 @@
 // TODO: localisation
 
 __kernel 
+void MMTold(__global float* a, 
+	 __global float* c,
+	 const unsigned int width,
+	 const unsigned int height
+	)
+{
+    uint i = get_global_id(0);
+    uint j = get_global_id(1);
+
+    float sum = 0;
+
+    for(int k=0; k<width; k++){
+
+      sum+=a[j*width+k]*a[i*width+k];
+    }
+
+    c[j*width+i]=sum;
+
+//     CODE for M.Transpose
+//     c[i*height+j]=a[j*width+i];
+}
+
+__kernel 
 void MMT(__global float* a, 
 	 __global float* c,
 	 const unsigned int width,
