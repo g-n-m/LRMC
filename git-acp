@@ -1,4 +1,14 @@
 #!/bin/sh
 
+# Check for proper number of command line args.
+EXPECTED_ARGS=2
+E_BADARGS=65
+
+if [ $# -ne $EXPECTED_ARGS ]
+then
+  echo "Usage: `basename $0` [branch] [commitmessage]"
+  exit $E_BADARGS
+fi
+
 git commit -am "$2"
 git push origin $1
