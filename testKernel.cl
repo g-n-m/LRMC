@@ -25,6 +25,8 @@
 // //     c[i*height+j]=a[j*width+i];
 // }
 
+// MMT is calculating C = A*A',
+// where A is a " width x height " type matrix
 // Blocked version of MMT
 __kernel 
 void MMT(__global float* a, 
@@ -60,7 +62,7 @@ void MMT(__global float* a,
     c[row*width+col]=sum;
 }
 
-// PNorm2 is calculating c = ||a||^2,
+// PNorm2 is calculating c = ||a||,
 // where a is a vector
 // NOTE: size-padding needed!
 __kernel 
@@ -93,6 +95,7 @@ void PNorm2G(__global float* a,
     if ( li==0 ) {c[0] = sqrt(sdata[0]);}
 }
 
+// PNorm2 with local output
 __kernel 
 void PNorm2L(__global float* a, 
 	    __local  float* c,
@@ -145,8 +148,12 @@ void PNorm2v2(__global float* a,
     uint ls = get_local_size(0);
     uint j  = bi*ls*2+li;
 
-    c[gi]   = a[gi]/i[0];
-    c[gi+ls]= a[gi+ls]/i[0];
+c[gi]   = j;
+//     c[gi]   = i[0];
+//     c[gi+ls]= i[0];
+
+//     c[gi]   = a[gi]/i[0];
+//     c[gi+ls]= a[gi+ls]/i[0];
 }
 
 // __kernel 
