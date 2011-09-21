@@ -94,8 +94,8 @@ class CL:
     
     #TODO Nr.3: blokkosítás (lokalizálni)
 
-    #print "a", self.a
-    print "c", c
+    print "[c:]"+8*5*"-"; print self.a.reshape(8,8)
+    print "[c:]"+8*8*"-"; print c.reshape(8,8)
     
     return c
 

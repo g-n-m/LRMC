@@ -126,7 +126,7 @@ void PNorm2L(__global float* a,
 
 // PNorm2v2 is calculating c = a/||a||,
 // where a is a vector
-// TODO: size-padding
+// NOTE: size-padding
 
 __kernel 
 void PNorm2v2(__global float* a, 
