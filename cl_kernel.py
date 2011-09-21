@@ -29,7 +29,7 @@ class CL:
     #"""
     
     #--- MMT Kernel
-    #"""
+    """
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(64), dtype=numpy.float32)
     
@@ -47,9 +47,9 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel
-    """
+    #"""
     #initialize client side (CPU) arrays
-    self.a = numpy.array(range(64), dtype=numpy.float32)
+    self.a = numpy.array(range(128), dtype=numpy.float32)
     
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
@@ -67,9 +67,9 @@ class CL:
     #"""
     
     #--- MMT Kernel
-    #"""
+    """
     #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
-    #self.program.MMT(self.queue, (8, 8), (4,4), self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.a)*32/4))
+    self.program.MMT(self.queue, (8, 8), (4,4), self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.a)*32/4))
     c = numpy.empty_like(self.a)
     #"""
     
@@ -80,9 +80,9 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel    
-    """
+    #"""
     #self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/4),cl.LocalMemory(32))
-    self.program.PNorm2v2(self.queue, self.a.shape , (len(self.a),), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/2),cl.LocalMemory(32))
+    self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/2),cl.LocalMemory(32))
     c = numpy.empty_like(self.a)
     #"""
     

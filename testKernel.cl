@@ -148,7 +148,8 @@ void PNorm2v2(__global float* a,
     uint ls = get_local_size(0);
     uint j  = bi*ls*2+li;
 
-c[gi]   = j;
+    c[gi]   = i[0];
+    c[gi+ls]= 2;
 //     c[gi]   = i[0];
 //     c[gi+ls]= i[0];
 
