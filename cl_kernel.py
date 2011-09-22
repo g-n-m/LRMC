@@ -49,7 +49,7 @@ class CL:
     #--- PNorm2v2 Kernel
     #"""
     #initialize client side (CPU) arrays
-    self.a = numpy.array(range(128), dtype=numpy.float32)
+    self.a = numpy.array(range(64), dtype=numpy.float32)
     
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
