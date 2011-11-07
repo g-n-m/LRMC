@@ -171,7 +171,6 @@ void SMV(__global float* s,
 
     float sum = 0;
     
-    
 }
 
 
