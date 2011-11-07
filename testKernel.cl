@@ -152,6 +152,29 @@ void PNorm2v2(__global float* a,
     c[gi+ls]= a[gi+ls]/i[0];
 }
 
+// SMV is calculating <result> = s*M*v,
+// where s is scalar, M is a matrix (different sizes?) and v is a vector (size?)
+__kernel
+void SMV(__global float* s,
+	 __global float* m,
+	 __global float* v
+	 )
+{
+    uint li = get_local_id(0);
+    uint lj = get_local_id(1);
+
+    __private uint lsi = get_local_size(0);  //nem feltétlenül kell
+    __private uint lsj = get_local_size(1);
+
+    uint col = get_group_id(0) * lsi + li;
+    uint row = get_group_id(1) * lsj + lj;
+
+    float sum = 0;
+    
+    
+}
+
+
 // __kernel 
 // void matrixTranspose(__global float * output,
 //                      __global float * input,
