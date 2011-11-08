@@ -47,12 +47,27 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel
-    #"""
+    """
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(512), dtype=numpy.float32)
     
     #create OpenCL buffers
     self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
+    #"""
+
+    #--- SMV Kernel
+    #"""
+    #initialize client side (CPU) arrays
+    self.a = numpy.array(range(64), dtype=numpy.float32)
+    self.b = numpy.array(range(8), dtype=numpy.float32)
+    self.s = numpy.array(range(1), dtype=numpy.float32)
+    self.s[0] = 1
+    
+    #create OpenCL buffers
+    self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.a.nbytes)
+
+    self.b_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.b)
+    self.s_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.s)
     #"""
     
     self.a_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.a)
@@ -80,13 +95,20 @@ class CL:
     #"""
     
     #--- PNorm2v2 Kernel    
-    #"""
+    """
     #self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/4),cl.LocalMemory(32))
     self.program.PNorm2v2(self.queue, (self.a.shape[0]/2, ) , (len(self.a)/2,), self.a_buf, self.dest_buf, cl.LocalMemory(len(self.a)*32/2),cl.LocalMemory(32))
     c = numpy.empty_like(self.a)
     #"""
-    
-    #ti=time()
+
+    #--- SMV Kernel
+    #"""
+    #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
+    self.program.SMV(self.queue, (8, 8), (4,4), self.s_buf, self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.b)*32/4))
+    c = numpy.empty_like(self.a)
+    #"""
+        
+#ti=time()
       #cl.enqueue_read_buffer(self.queue, self.dest_buf, c).wait()
       #enqueue_read_buffer turned into deprecated, the new command: 
       #(NOTE: some args' order has changed!)
@@ -95,9 +117,9 @@ class CL:
     
     #TODO Nr.3: blokkosítás (lokalizálni)
 
-    #print "[c:]"+8*5*"-"; print self.a.reshape(8,8)
-    print "[c:]"+8*8*"-"; print c
-    #print "[c:]"+8*8*"-"; print c.reshape(8,8)
+    #print "[a:]"+8*5*"-"; print self.a.reshape(8,8)
+    #print "[c:]"+8*8*"-"; print c
+    print "[c:]"+8*8*"-"; print c.reshape(8,8)
     
     return c
 

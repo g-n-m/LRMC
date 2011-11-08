@@ -28,6 +28,7 @@
 // MMT is calculating C = A*A',
 // where A is a " width x height " type matrix
 // Blocked version of MMT
+// TODO: refresh the role of for cycles
 __kernel 
 void MMT(__global float* a, 
 	 __global float* c,
@@ -60,6 +61,7 @@ void MMT(__global float* a,
 	}
     }
     c[row*width+col]=sum;
+    //     c[row*width+col]=sdata[lj*lsi+li];
 }
 
 // PNorm2 is calculating c = ||a||,
@@ -157,20 +159,35 @@ void PNorm2v2(__global float* a,
 __kernel
 void SMV(__global float* s,
 	 __global float* m,
-	 __global float* v
+	 __global float* v,
+	 __global float* c,
+	 const unsigned int width, // this should be for both the vector parts and the matrix parts??
+	 __local float* sdata,
+	 __local float* sdatb
 	 )
 {
     uint li = get_local_id(0);
     uint lj = get_local_id(1);
 
-    __private uint lsi = get_local_size(0);  //nem feltétlenül kell
-    __private uint lsj = get_local_size(1);
+    __private uint lsi = get_local_size(0);  // is private really necessery?
+    __private uint lsj = get_local_size(1);  // NOTE: care accentuated letters!
 
     uint col = get_group_id(0) * lsi + li;
     uint row = get_group_id(1) * lsj + lj;
 
     float sum = 0;
-    
+
+    for(int i=0; i < width / lsi; i++) {
+      sdata[lj] = v[i * lsi + li];
+      sdatb[lj * lsi + li] = m[(i * lsj + lj) * width + col];
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+
+      for(int k=0; k < lsi; k++) {
+	sum += sdatb[k * lsi + li] * sdata[k]; // k was assumed
+      }
+    }
+    c[row * width + col]=sum;
 }
 
 
