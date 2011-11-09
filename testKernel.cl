@@ -187,7 +187,7 @@ void SMV(__global float* s,
 	sum += sdatb[k * lsi + li] * sdata[k]; // k was assumed
       }
     }
-    c[row * width + col]=sum;
+    c[col]=sum;
 }
 
 
