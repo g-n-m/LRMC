@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#add untracked files
+
+git add `git-ut`
