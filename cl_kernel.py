@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-  
 
 import pyopencl as cl
-import numpy, numpy.linalg as la
+#import numpy, numpy.linalg as la
 from time import time
+from check_result import *
 
 #--- gpu kernel fv ---------------------------------------->>>
 
@@ -120,6 +121,8 @@ class CL:
     #print "[a:]"+8*5*"-"; print self.a.reshape(8,8)
     print "[c:]"+8*8*"-"; print c
     #print "[c:]"+8*8*"-"; print c.reshape(8,8)
+
+    print check_SMV(self.s, self.a, self.b, True)
     
     return c
 
