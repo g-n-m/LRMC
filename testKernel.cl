@@ -176,18 +176,28 @@ void SMV(__global float* s,
     uint row = get_group_id(1) * lsj + lj;
 
     float sum = 0;
+    c[lj]=0;
+    c[lj+lsj]=1;
+    // Initialization, to check changes...
+    //    c[lj]=v[lj];
+    //    c[lj+lsj]=v[lj+lsj];
 
     for(int i=0; i < width / lsi; i++) {
-      sdata[lj] = v[i * lsi + li];
+      //      sdata[lj] = v[i * lsi + li];
+      sdata[li] = v[i * lsi + li]; // <-- i or j check!
       sdatb[lj * lsi + li] = m[(i * lsj + lj) * width + col];
       
       barrier(CLK_LOCAL_MEM_FENCE);
 
       for(int k=0; k < lsi; k++) {
+      //for(int k=0; k < 4; k++) {
+	//sum += sdatb[k * lsi + li];// * sdata[k]; // k was assumed
 	sum += sdatb[k * lsi + li] * sdata[k]; // k was assumed
+	//sum = sdata[k]; // k was assumed
       }
     }
     c[col]=sum;
+    //c=v;
 }
 
 

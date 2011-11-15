@@ -61,6 +61,8 @@ class CL:
     #initialize client side (CPU) arrays
     self.a = numpy.array(range(64), dtype=numpy.float32)
     self.b = numpy.array(range(8), dtype=numpy.float32)
+    self.b_test = numpy.array(range(8), dtype=numpy.float32)
+    self.b_test[:] = 1
     self.s = numpy.array(range(1), dtype=numpy.float32)
     self.s[0] = 1
     
@@ -122,7 +124,7 @@ class CL:
     print "[c:]"+8*8*"-"; print c
     #print "[c:]"+8*8*"-"; print c.reshape(8,8)
 
-    print check_SMV(self.s, self.a, self.b, True)
+    print check_SMV(self.s, self.a, self.b_test, True)
     
     return c
 
