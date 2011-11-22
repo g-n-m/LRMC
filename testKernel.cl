@@ -178,11 +178,14 @@ void SMV(__global float* s,
     float sum = 0;
     c[lj]=0;
     c[lj+lsj]=1;
+    c[lj+lsj+lsj]=2;
+    c[lj+lsj+lsj+lsj]=3;
     // Initialization, to check changes...
     //    c[lj]=v[lj];
     //    c[lj+lsj]=v[lj+lsj];
 
-    for(int i=0; i < width / lsi; i++) {
+    /*
+      for(int i=0; i < width / lsi; i++) {
       //      sdata[lj] = v[i * lsi + li];
       sdata[li] = v[i * lsi + li]; // <-- i or j check!
       sdatb[lj * lsi + li] = m[(i * lsj + lj) * width + col];
@@ -197,7 +200,35 @@ void SMV(__global float* s,
       }
     }
     c[col]=sum;
-    //c=v;
+    */
+
+    for(int i=0; i < width / lsi; i++) {
+      //sdata[lj] = v[i * lsi + li];
+      //sdata[li] = v[i * lsi + li]; // <-- i or j check!
+      //      c[lj * lsi + li] = m[(i * lsj + lj) * width + col];// * v[i * lsi + li];
+      //      c[lj * lsi + li] = v[i * lsi + li];
+      
+      barrier(CLK_LOCAL_MEM_FENCE);
+
+      //for(int k=0; k < lsi; k++) {
+      for(int k=0; k < lsi; k++) {
+	//sum += sdatb[k * lsi + li];// * sdata[k]; // k was assumed
+	//sum += sdatb[k * lsi + li] * sdata[k]; // k was assumed
+	//sum += sdatb[k * lsi + li];
+	//sum = sdata[k]; // k was assumed
+	//TODO: CodeCorrection!!!
+	//	c[lj * lsi + li] = m[(i * lsj + lj) * width + col];// * v[i * lsi + li];
+	//c[lj * lsi + li] = v[i * lsi + li];
+	sdatb[lj * lsi + li] = 0;
+	for(int w=0; w < width / lsi; w++) {
+	  sdatb[lj * lsi + li] += m[(i * lsi + lj) * width + (w * lsi + li)]; // * v[lsi * k + lj]; //col swap top expr.
+	  c[lsi * w + lj] = v[w * lsi + lj]; //v[lsi * k + lj];
+	  //c[li] = lsi;
+	}
+      }
+    }
+    //c[col]=sum;
+    
 }
 
 

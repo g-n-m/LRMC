@@ -108,7 +108,8 @@ class CL:
     #"""
     #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
     self.program.SMV(self.queue, (8, 8), (4,4), self.s_buf, self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.b)*32/4))
-    c = numpy.empty_like(self.b)
+    #c = numpy.empty_like(self.b)
+    c = numpy.empty_like(numpy.array(range(16), dtype=numpy.float32)) # For test cases
     #"""
         
 #ti=time()
@@ -121,7 +122,8 @@ class CL:
     #TODO Nr.3: blokkosítás (lokalizálni)
 
     #print "[a:]"+8*5*"-"; print self.a.reshape(8,8)
-    print "[c:]"+8*8*"-"; print c
+    #print "[c:]"+8*8*"-"; print c
+    print "[c:]"+8*8*"-"; print c.reshape(4,4)  # For test cases
     #print "[c:]"+8*8*"-"; print c.reshape(8,8)
 
     print check_SMV(self.s, self.a, self.b_test, True)
