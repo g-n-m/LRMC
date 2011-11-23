@@ -154,6 +154,37 @@ void PNorm2v2(__global float* a,
     c[gi+ls]= a[gi+ls]/i[0];
 }
 
+// Reduction with local output
+// __kernel 
+void PPS(__global float* a, 
+	    __local  float* c,
+	    __local  float* sdata
+	   )
+{
+    uint li = get_local_id(0);
+    uint bi = get_group_id(0);
+    uint ls = get_local_size(0);
+    uint j  = bi*ls*2+li;
+
+    sdata[li]=a[j]+a[j+ls];
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    if (ls >= 512) {if (li < 256) { sdata[li] += sdata[li + 256];} }
+    if (ls >= 256) {if (li < 128) { sdata[li] += sdata[li + 128];} }
+    if (ls >= 128) {if (li <  64) { sdata[li] += sdata[li +  64];} }
+
+    if (li < 32) {
+      if (ls >= 64) { sdata[li] += sdata[li +  32]; }
+      if (ls >= 32) { sdata[li] += sdata[li +  16]; }
+      if (ls >= 16) { sdata[li] += sdata[li +   8]; }
+      if (ls >=  8) { sdata[li] += sdata[li +   4]; }
+      if (ls >=  4) { sdata[li] += sdata[li +   2]; }
+      if (ls >=  2) { sdata[li] += sdata[li +   1]; }
+    }
+
+    if ( li==0 ) {c[0] = sdata[0];}
+}
+
 // SMV is calculating <result> = s*M*v,
 // where s is scalar, M is a matrix (different sizes?) and v is a vector (size?)
 __kernel
@@ -208,7 +239,7 @@ void SMV(__global float* s,
       //      c[lj * lsi + li] = m[(i * lsj + lj) * width + col];// * v[i * lsi + li];
       //      c[lj * lsi + li] = v[i * lsi + li];
       
-      barrier(CLK_LOCAL_MEM_FENCE);
+      //barrier(CLK_LOCAL_MEM_FENCE);
 
       //for(int k=0; k < lsi; k++) {
       for(int k=0; k < lsi; k++) {
@@ -222,9 +253,15 @@ void SMV(__global float* s,
 	sdatb[lj * lsi + li] = 0;
 	for(int w=0; w < width / lsi; w++) {
 	  sdatb[lj * lsi + li] += m[(i * lsi + lj) * width + (w * lsi + li)]; // * v[lsi * k + lj]; //col swap top expr.
-	  c[lsi * w + lj] = v[w * lsi + lj]; //v[lsi * k + lj];
+	  //c[lsi * w + lj] = v[w * lsi + lj]; //v[lsi * k + lj];
 	  //c[li] = lsi;
 	}
+      }
+      for(int k=0; k<lsi; k++){
+	//Calculate the SUM!
+	//c[lsi * k + lj] = ;
+	c[lsi * i + k] = ; //How to pass shortened array?
+	//c = sdatb;
       }
     }
     //c[col]=sum;
