@@ -72,6 +72,19 @@ class CL:
     self.b_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.b)
     self.s_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.s)
     #"""
+
+    #--- OPG Kernel
+    """
+    #initialize client side (CPU) arrays
+    self.a = numpy.array(range(8), dtype=numpy.float32)
+    self.b = numpy.array(range(8), dtype=numpy.float32)
+    
+    #create OpenCL buffers
+    self.dest_buf = cl.Buffer(self.ctx, mf.WRITE_ONLY, self.b.nbytes * self.a.size) # need to test this!
+
+    self.b_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.b)
+    #"""
+
     
     self.a_buf = cl.Buffer(self.ctx, mf.READ_ONLY | mf.COPY_HOST_PTR, hostbuf=self.a)
     
@@ -107,9 +120,17 @@ class CL:
     #--- SMV Kernel
     #"""
     #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
-    self.program.SMV(self.queue, (8, 8), (4,4), self.s_buf, self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.b)*32/4))
+    #self.program.SMV(self.queue, (8, 8), (4,4), self.s_buf, self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), cl.LocalMemory(len(self.a)*32/4), cl.LocalMemory(len(self.b)*32/4))
+    self.program.SMV(self.queue, (8, 8), (4,4), self.s_buf, self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8))
     c = numpy.empty_like(self.b)
     #c = numpy.empty_like(numpy.array(range(16), dtype=numpy.float32)) # For test cases
+    #"""
+
+    #--- OPG Kernel # TODO: this should be tested
+    """
+    #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
+    self.program.OPG(self.queue, (8, 8), (4,4), self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
+    c = numpy.empty_like(numpy.array(range(64), dtype=numpy.float32))
     #"""
         
 #ti=time()

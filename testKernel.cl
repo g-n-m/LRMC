@@ -192,9 +192,9 @@ void SMV(__global float* s,
 	 __global float* m,
 	 __global float* v,
 	 __global float* c,
-	 const unsigned int width, // this should be for both the vector parts and the matrix parts??
-	 __local float* sdata,
-	 __local float* sdatb
+	 const unsigned int width //, // this should be for both the vector parts and the matrix parts??
+	 // __local float* sdata,
+	 // __local float* sdatb
 	 )
 {
     uint li = get_local_id(0);
@@ -242,6 +242,28 @@ void SMV(__global float* s,
     c[row]=sum;
 }
 
+// OPG is calculating <result> = v*w,
+// where v and w are vectors (size?), and the result is pointing to global (local? operator?)
+__kernel
+void OPG(__global float* v,
+	 __global float* w,
+	 __global float* c,
+	 const unsigned int sizeV,
+	 const unsigned int sizeW
+	 )
+{
+  uint li = get_local_id(0);
+  uint lj = get_local_id(1);
+
+  __private uint lsi = get_local_size(0);  // is private really necessery?
+  __private uint lsj = get_local_size(1);  // NOTE: care accentuated letters!
+
+  uint col = get_group_id(0) * lsi + li;
+  uint row = get_group_id(1) * lsj + lj;
+
+  c[row*sizeV+col]=w[row] * v[col];
+
+}
 
 // __kernel 
 // void matrixTranspose(__global float * output,
