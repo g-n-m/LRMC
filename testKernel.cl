@@ -266,6 +266,21 @@ void OPG(__global float* v,
 
 }
 
+// Locality_checker returns a local input (in) to a global output (out)
+__kernel
+void Locality_checker(
+	 __local float* in,
+	 __global float* out
+	 )
+{
+  uint li = get_local_id(0);
+  uint lsi = get_local_size(0);
+  uint gi = get_group_id(0) * lsi + li;
+
+  out[gi]=in[gi];
+
+}
+
 // __kernel 
 // void matrixTranspose(__global float * output,
 //                      __global float * input,
