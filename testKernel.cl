@@ -261,7 +261,8 @@ void OPG(__global float* v,
   uint col = get_group_id(0) * lsi + li;
   uint row = get_group_id(1) * lsj + lj;
 
-  c[row*sizeV+col]=w[row] * v[col];
+  // c[row*sizeW+col]=w[row] * v[col];
+  c[col*sizeW+row]=v[col] * w[row];
 
 }
 

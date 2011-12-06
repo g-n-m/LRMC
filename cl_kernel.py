@@ -76,7 +76,7 @@ class CL:
     #--- OPG Kernel
     #"""
     #initialize client side (CPU) arrays
-    self.a = numpy.array(range(8), dtype=numpy.float32)
+    self.a = numpy.array(range(10), dtype=numpy.float32)
     self.b = numpy.array(range(8), dtype=numpy.float32)
     
     #create OpenCL buffers
@@ -129,8 +129,8 @@ class CL:
     #--- OPG Kernel # TODO: this should be tested
     #"""
     #self.program.MMT(self.queue, (8, 8), None, self.a_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
-    self.program.OPG(self.queue, (8, 8), (4,4), self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(8), numpy.uint32(8))
-    c = numpy.empty_like(numpy.array(range(64), dtype=numpy.float32))
+    self.program.OPG(self.queue, (self.a.size, self.b.size), (self.a.size/2, self.b.size/2), self.a_buf, self.b_buf, self.dest_buf, numpy.uint32(self.a.size), numpy.uint32(self.b.size))
+    c = numpy.empty_like(numpy.array(range(self.a.size * self.b.size), dtype=numpy.float32))
     #"""
         
 #ti=time()
@@ -145,7 +145,8 @@ class CL:
     #print "[a:]"+8*5*"-"; print self.a.reshape(8,8)
     #print "[c:]"+8*8*"-"; print c
     #print "[c:]"+8*8*"-"; print c.reshape(4,4)  # For test cases
-    print "[c:]"+8*8*"-"; print c.reshape(8,8)
+    #print "[c:]"+8*8*"-"; print c.reshape(8,8)
+    print "[c:]"+8*8*"-"; print c.reshape(self.a.size,self.b.size)
 
     # print check_SMV(self.s, self.a, self.b_test, True)
     # print check_SMV(self.s, self.a, self.b, True)
