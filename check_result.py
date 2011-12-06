@@ -17,3 +17,16 @@ def check_SMV(s, m, v, print_it):
     return numpy.dot(m_,v)
 
 #--- end block: "SMV result checker" ----------------------<<<
+
+#--- OPG result checker ----------------------------------->>>
+
+def check_OPG(v, w, print_it):
+    if print_it:
+        print "[v:]"+v.size*5*"-"; print v
+        print "[w:]"+w.size*5*"-"; print w
+
+        print "[R:]"+v.size*8*"-"
+        
+    return numpy.outer(v,w)
+
+#--- end block: "OPG result checker" ----------------------<<<
