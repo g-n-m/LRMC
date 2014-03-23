@@ -25,6 +25,21 @@
 // //     c[i*height+j]=a[j*width+i];
 // }
 
+// Locality_checker returns a local input (in) to a global output (out)
+__kernel
+void Locality_checker(
+	 __local float* in,
+	 __global float* out
+	 )
+{
+  uint li = get_local_id(0);
+  uint lsi = get_local_size(0);
+  uint gi = get_group_id(0) * lsi + li;
+
+  out[gi]=in[gi];
+
+}
+
 // MMT is calculating C = A*A',
 // where A is a " width x height " type matrix
 // Blocked version of MMT
@@ -150,8 +165,11 @@ void PNorm2v2(__global float* a,
     uint ls = get_local_size(0);
     uint j  = bi*ls*2+li;
 
-    c[gi]   = a[gi]/i[0];
-    c[gi+ls]= a[gi+ls]/i[0];
+    c[gi]   = 0;//a[gi]/i[0];
+    c[gi+ls]= 0;//a[gi+ls]/i[0];
+
+    // Let's try out Locality_checker:
+    Locality_checker(i, c);
 }
 
 // Reduction with local output
@@ -211,11 +229,6 @@ void SMV(__global float* s,
     c[lj+lsj]=1;
     // c[lj+lsj+lsj]=2;
     // c[lj+lsj+lsj+lsj]=3;
-
-    // Initialization, to check changes...
-    //    c[lj]=v[lj];
-    //    c[lj+lsj]=v[lj+lsj];
-
     /*
       for(int i=0; i < width / lsi; i++) {
       //      sdata[lj] = v[i * lsi + li];
@@ -261,23 +274,7 @@ void OPG(__global float* v,
   uint col = get_group_id(0) * lsi + li;
   uint row = get_group_id(1) * lsj + lj;
 
-  // c[row*sizeW+col]=w[row] * v[col];
   c[col*sizeW+row]=v[col] * w[row];
-
-}
-
-// Locality_checker returns a local input (in) to a global output (out)
-__kernel
-void Locality_checker(
-	 __local float* in,
-	 __global float* out
-	 )
-{
-  uint li = get_local_id(0);
-  uint lsi = get_local_size(0);
-  uint gi = get_group_id(0) * lsi + li;
-
-  out[gi]=in[gi];
 
 }
 
